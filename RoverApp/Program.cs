@@ -21,6 +21,10 @@ namespace RoverApp
             SetUpContainer();
 
             Console.WriteLine("Welcome to the Roverbot (values can only be a number bigger then 0 or bigger then the gridsize)");
+            Console.WriteLine("For a simple rover type: YES!");
+
+            var isSimpleRover = Console.ReadLine();
+            var roverType = isSimpleRover == "YES!" ? RoverType.SimpleRover : RoverType.Rover;
 
             _gridSize = ValidateInput("Please fill in the grid size");
 
@@ -38,7 +42,7 @@ namespace RoverApp
                 components.Add(new Point(xCoordinate - 1, yCoordinate - 1));
             }
 
-            var rover = _container.Resolve<IRover>();
+            var rover = _container.ResolveKeyed<IRover>(roverType);
             var directionsToComponents = rover.StartRover(startingPosition, _gridSize, components);
 
             Console.WriteLine(directionsToComponents);
@@ -52,8 +56,12 @@ namespace RoverApp
         {
             var builder = new ContainerBuilder();
             builder
+                .RegisterType<SimpleRover>()
+                .Keyed<IRover>(RoverType.SimpleRover)
+                .InstancePerDependency();
+            builder
                 .RegisterType<Rover>()
-                .As<IRover>()
+                .Keyed<IRover>(RoverType.Rover)
                 .InstancePerDependency();
             builder
                 .RegisterType<PathFinder>()
@@ -79,7 +87,7 @@ namespace RoverApp
                 output < 0 || 
                 output > _gridSize)
             {
-                Console.WriteLine("Please fill in a number that's bigger then 0");
+                Console.WriteLine("Please fill in a number that's bigger then 0 and not bigger then the gridsize");
                 value = Console.ReadLine();
             }
 

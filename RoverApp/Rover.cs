@@ -63,55 +63,44 @@ namespace RoverApp
         /// <summary>
         /// Calculate what cardinal direction the rover is moving
         /// </summary>
-        /// <param name="fullPath"></param>
+        /// <param name="paths"></param>
         /// <param name="startingLocation"></param>
         /// <returns></returns>
-        private string PathDirections(IEnumerable<Point> fullPath, Point startingLocation)
+        private static string PathDirections(IEnumerable<Point> paths, Point startingLocation)
         {
+            var path = new StringBuilder();
             var startPoint = startingLocation;
-            var cardinalDirections = new StringBuilder();
 
-            foreach (var endPoint in fullPath)
+            foreach (var endPoint in paths)
             {
                 var xDifference = endPoint.X - startPoint.X;
                 var yDifference = endPoint.Y - startPoint.Y;
 
-                var cardinalDirection = CalculateCardinalDirection(xDifference, yDifference);
+                var xCardinal = xDifference > 0 ? 'E' : 'W';
+                var yCardinal = yDifference > 0 ? 'N' : 'S';
 
-                cardinalDirections.Append(cardinalDirection + "-");
+                if (xDifference < 0)
+                {
+                    path.Append(xCardinal, -xDifference);
+                }
+                else
+                {
+                    path.Append(xCardinal, xDifference);
+                }
+
+                if (yDifference < 0)
+                {
+                    path.Append(yCardinal, -yDifference);
+                }
+                else
+                {
+                    path.Append(yCardinal, yDifference);
+                }
 
                 startPoint = endPoint;
             }
 
-            return cardinalDirections.ToString();
-        }
-
-        /// <summary>
-        /// Calculate what cardinal direction based on coordinates
-        /// </summary>
-        /// <param name="xDifference"></param>
-        /// <param name="yDifference"></param>
-        /// <returns></returns>
-        private char CalculateCardinalDirection(int xDifference, int yDifference)
-        {
-            if (xDifference == 0)
-            {
-                if (yDifference == 1)
-                {
-                    return 'N';
-                }
-
-                return 'S';
-            }
-            else
-            {
-                if (xDifference == 1)
-                {
-                    return 'E';
-                }
-
-                return 'W';
-            }
+            return path.ToString();
         }
     }
 }
